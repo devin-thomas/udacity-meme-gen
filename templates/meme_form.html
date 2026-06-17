@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Meme Generator{% endblock %}
+{% block body %}
+<form class="creator-form" action="{{ url_for('meme_post') }}" method="POST">
+    <div class="form-field">
+        <label for="image_url">Image URL</label>
+        <input
+            type="url"
+            id="image_url"
+            placeholder="https://example.com/image.jpg"
+            name="image_url"
+            required
+        >
+    </div>
+    <div class="form-field">
+        <label for="body">Quote Body</label>
+        <input
+            type="text"
+            id="body"
+            placeholder="Readable code is a kindness"
+            name="body"
+            maxlength="160"
+            required
+        >
+    </div>
+    <div class="form-field">
+        <label for="author">Quote Author</label>
+        <input
+            type="text"
+            id="author"
+            placeholder="Devin"
+            name="author"
+            maxlength="80"
+            required
+        >
+    </div>
+    <button class="button button-primary" type="submit">Create Meme</button>
+</form>
+{% endblock %}

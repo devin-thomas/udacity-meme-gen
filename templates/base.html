@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    <body>
+        <main class="app-shell">
+            <header class="app-header">
+                <p class="eyebrow">Udacity Meme Generator</p>
+                <h1>Meme Studio</h1>
+                <nav class="nav" aria-label="Primary">
+                    <a class="button button-primary" href="{{ url_for('meme_rand') }}">Random</a>
+                    <a class="button button-secondary" href="{{ url_for('meme_form') }}">Creator</a>
+                </nav>
+            </header>
+            <section class="workspace">
+                {% block body %}{% endblock %}
+            </section>
+        </main>
+    </body>
+</html>
