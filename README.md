@@ -9,10 +9,10 @@ a command-line interface and a Flask web app.
 
 - I implemented a `QuoteEngine` package with an abstract ingestor interface and
   separate CSV, DOCX, PDF, and TXT strategy classes.
-- I added recursive quote and image discovery so new content can be dropped into
-  `_data/` without changing the app code.
-- I used Pillow in `MemeEngine` to resize images, wrap captions, draw readable
-  text, and save generated JPEG files.
+- I added recursive quote and image discovery with curated runtime pools, so
+  ingestion fixtures never leak into generated memes.
+- I used Pillow in `MemeEngine` to resize images, measure and wrap captions,
+  choose a quiet randomized location, and save generated JPEG files.
 - I completed the Udacity CLI and Flask starter code, including user-submitted
   image URLs through `requests`.
 - I added custom exceptions, focused pytest coverage, original quote content,
@@ -103,8 +103,10 @@ quotes = Ingestor.parse("_data/DogQuotes/DogQuotesTXT.txt")
 ### `MemeEngine`
 
 I use `MemeEngine` to load a JPEG or PNG from disk, resize it to a maximum width
-of 500 pixels, draw the quote and author at a random readable location, and save
-the generated meme.
+of 500 pixels, and save the generated meme. Before drawing, I measure each line,
+fit the caption to the image, and rank a grid of possible locations by visual
+detail. I randomly choose between the two quietest regions, which keeps the
+rubric-required variation while reducing clipped text and covered faces.
 
 Example:
 
@@ -118,8 +120,11 @@ path = engine.make_meme("_data/photos/dog/xander_1.jpg", "Hello", "Devin")
 ### `meme_resources.py`
 
 I keep shared resource discovery here so the CLI and Flask app load the same
-quotes and images. It walks `_data/DogQuotes`, `_data/SimpleLines`,
-`_data/PortfolioQuotes`, and `_data/photos`.
+curated content. Runtime quotes come from `_data/DogQuotes` and
+`_data/PortfolioQuotes`, with duplicate body-author pairs removed in source
+order. Runtime images come from `_data/photos/dog`. I keep `_data/SimpleLines`
+as a multi-format ingestion fixture and the abstract original images as design
+experiments, but I intentionally exclude both from random meme generation.
 
 ### `meme.py`, `main.py`, and `app.py`
 
@@ -161,4 +166,5 @@ I kept the file parsers small and pushed shared behavior into the abstract base
 class so the strategy pattern stays visible without duplicating parsing logic.
 The extra directory discovery and PDF fallback make the app easier to run as a
 portfolio project, while the tests stay focused on the behaviors most likely to
-break: quote parsing, unsupported files, CLI validation, and image generation.
+break: quote parsing, unsupported files, runtime content curation, CLI
+validation, caption bounds, placement quality, and image generation.

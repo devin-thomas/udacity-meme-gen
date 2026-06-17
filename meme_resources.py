@@ -8,10 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "_data"
 QUOTE_DIRECTORIES = [
     DATA_DIR / "DogQuotes",
-    DATA_DIR / "SimpleLines",
     DATA_DIR / "PortfolioQuotes",
 ]
-IMAGE_ROOT = DATA_DIR / "photos"
+IMAGE_ROOT = DATA_DIR / "photos" / "dog"
 SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 
@@ -19,9 +18,14 @@ def load_quotes(quote_directories=None):
     """Load all discoverable quote files from the configured directories."""
     directories = quote_directories or QUOTE_DIRECTORIES
     quotes = []
+    seen = set()
     for directory in directories:
         if Path(directory).exists():
-            quotes.extend(Ingestor.parse_directory(directory))
+            for quote in Ingestor.parse_directory(directory):
+                identity = (quote.body, quote.author)
+                if identity not in seen:
+                    quotes.append(quote)
+                    seen.add(identity)
 
     if not quotes:
         raise RuntimeError("No quotes were found in the configured data folders.")
