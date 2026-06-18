@@ -5,6 +5,10 @@ in the Intermediate Python Nanodegree. It loads quotes from CSV, DOCX, PDF, and
 TXT files, pairs them with local images, and generates captioned memes from both
 a command-line interface and a Flask web app.
 
+## Sample Output
+
+![A generated dog meme with a readable caption](docs/sample-meme.jpg)
+
 ## Project Highlights
 
 - I implemented a `QuoteEngine` package with an abstract ingestor interface and
