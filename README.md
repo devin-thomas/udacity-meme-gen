@@ -63,6 +63,17 @@ Generate a meme from a specific image and quote:
 
 The command prints the generated image path in `tmp/`.
 
+### PDF parser selection
+
+`PDFIngestor` first checks the `PDFTOTEXT_PATH` environment variable for an
+explicit `pdftotext` executable, then searches the system `PATH`. If neither
+location provides the CLI, it automatically falls back to the installed
+`pypdf` library. For example, on Windows:
+
+```powershell
+$env:PDFTOTEXT_PATH = "C:\Program Files\xpdf\bin64\pdftotext.exe"
+```
+
 ## Web App Usage
 
 Start the Flask app:

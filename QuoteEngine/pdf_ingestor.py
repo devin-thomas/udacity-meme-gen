@@ -12,16 +12,17 @@ from .exceptions import (
     UnsupportedFileTypeError,
 )
 from .ingestor_interface import IngestorInterface
+from .quote_model import QuoteModel
 from .text_ingestor import TextIngestor
 
 
 class PDFIngestor(IngestorInterface):
-    """Load quotes from PDF files."""
+    """Parse .pdf quotes with pdftotext or the pypdf fallback."""
 
     allowed_extensions = ["pdf"]
 
     @classmethod
-    def parse(cls, path):
+    def parse(cls, path) -> list[QuoteModel]:
         """Parse a PDF file into QuoteModel objects."""
         if not cls.can_ingest(path):
             raise UnsupportedFileTypeError(f"PDFIngestor cannot parse {path}.")
@@ -35,7 +36,11 @@ class PDFIngestor(IngestorInterface):
         return cls._parse_with_pypdf(path)
 
     @classmethod
-    def _parse_with_pdftotext(cls, path, executable):
+    def _parse_with_pdftotext(
+        cls,
+        path,
+        executable,
+    ) -> list[QuoteModel]:
         """Convert a PDF to text through a subprocess and parse the result."""
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".txt")
         temp_file_path = temp_file.name
@@ -58,7 +63,7 @@ class PDFIngestor(IngestorInterface):
             Path(temp_file_path).unlink(missing_ok=True)
 
     @classmethod
-    def _parse_with_pypdf(cls, path):
+    def _parse_with_pypdf(cls, path) -> list[QuoteModel]:
         """Parse PDFs when pdftotext is not installed locally."""
         try:
             from pypdf import PdfReader

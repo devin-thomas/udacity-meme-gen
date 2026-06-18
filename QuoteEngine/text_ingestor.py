@@ -2,15 +2,16 @@
 
 from .exceptions import UnsupportedFileTypeError
 from .ingestor_interface import IngestorInterface
+from .quote_model import QuoteModel
 
 
 class TextIngestor(IngestorInterface):
-    """Load quotes from plain text files."""
+    """Parse .txt quote files with Python's built-in text I/O."""
 
     allowed_extensions = ["txt"]
 
     @classmethod
-    def parse(cls, path):
+    def parse(cls, path) -> list[QuoteModel]:
         """Parse a text file into QuoteModel objects."""
         if not cls.can_ingest(path):
             raise UnsupportedFileTypeError(

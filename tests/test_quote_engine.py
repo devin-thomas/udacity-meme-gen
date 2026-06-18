@@ -1,12 +1,17 @@
 """Tests for quote ingestion behavior."""
 
 from pathlib import Path
+import subprocess
 
 import pytest
+from docx import Document
 
 from QuoteEngine import (
+    CSVIngestor,
+    DocxIngestor,
     Ingestor,
     InvalidQuoteFormatError,
+    PDFIngestor,
     QuoteModel,
     TextIngestor,
     UnsupportedFileTypeError,
@@ -43,6 +48,76 @@ def test_text_ingestor_rejects_bad_quote_format(tmp_path):
 
     with pytest.raises(InvalidQuoteFormatError, match="Expected the format"):
         TextIngestor.parse(quote_file)
+
+
+def test_text_ingestor_accepts_utf8_bom(tmp_path):
+    """UTF-8 BOM markers are removed without changing quote content."""
+    quote_file = tmp_path / "bom-quotes.txt"
+    quote_file.write_text(
+        '"A clean beginning" - Devin\n',
+        encoding="utf-8-sig",
+    )
+
+    quotes = TextIngestor.parse(quote_file)
+
+    assert quotes == [QuoteModel("A clean beginning", "Devin")]
+
+
+def test_csv_ingestor_normalizes_padded_uppercase_columns(tmp_path):
+    """CSV column matching remains whitespace and case insensitive."""
+    quote_file = tmp_path / "quotes.csv"
+    quote_file.write_text(
+        ' BODY , AUTHOR \n"Useful defaults","Devin"\n',
+        encoding="utf-8",
+    )
+
+    quotes = CSVIngestor.parse(quote_file)
+
+    assert quotes == [QuoteModel("Useful defaults", "Devin")]
+
+
+def test_docx_ingestor_skips_blanks_and_rejects_invalid_lines(tmp_path):
+    """DOCX spacing is ignored while malformed quote lines still fail."""
+    quote_file = tmp_path / "quotes.docx"
+    document = Document()
+    document.add_paragraph("")
+    document.add_paragraph('"Valid quote" - Devin')
+    document.add_paragraph("invalid quote line")
+    document.save(quote_file)
+
+    with pytest.raises(InvalidQuoteFormatError, match="Expected the format"):
+        DocxIngestor.parse(quote_file)
+
+
+def test_pdf_ingestor_uses_configured_pdftotext(monkeypatch, tmp_path):
+    """PDFTOTEXT_PATH selects the subprocess parser branch directly."""
+    pdf_path = tmp_path / "quotes.pdf"
+    pdf_path.write_bytes(b"placeholder")
+    converted_path = None
+
+    def fake_run(command, **options):
+        nonlocal converted_path
+        assert command[:2] == ["custom-pdftotext", str(pdf_path)]
+        assert options == {
+            "check": True,
+            "capture_output": True,
+            "text": True,
+        }
+        converted_path = Path(command[2])
+        converted_path.write_text(
+            '"Subprocesses need tests" - Devin\n',
+            encoding="utf-8",
+        )
+        return subprocess.CompletedProcess(command, returncode=0)
+
+    monkeypatch.setenv("PDFTOTEXT_PATH", "custom-pdftotext")
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    quotes = PDFIngestor.parse(pdf_path)
+
+    assert quotes == [QuoteModel("Subprocesses need tests", "Devin")]
+    assert converted_path is not None
+    assert not converted_path.exists()
 
 
 @pytest.mark.parametrize(

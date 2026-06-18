@@ -13,13 +13,13 @@ class IngestorInterface(ABC):
     allowed_extensions = []
 
     @classmethod
-    def can_ingest(cls, path):
+    def can_ingest(cls, path) -> bool:
         """Return True when this ingestor supports the file extension."""
         extension = Path(path).suffix.lower().lstrip(".")
         return extension in cls.allowed_extensions
 
     @classmethod
-    def _parse_quote_line(cls, line):
+    def _parse_quote_line(cls, line) -> QuoteModel | None:
         """Parse one line in the standard '"body" - author format."""
         cleaned = str(line).strip().strip("\ufeff").strip("\x0c").strip()
         if not cleaned:
@@ -37,7 +37,7 @@ class IngestorInterface(ABC):
         return QuoteModel(body, author)
 
     @classmethod
-    def _quotes_from_lines(cls, lines):
+    def _quotes_from_lines(cls, lines) -> list[QuoteModel]:
         """Convert text lines into QuoteModel instances."""
         quotes = []
         for line in lines:
@@ -48,6 +48,6 @@ class IngestorInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def parse(cls, path):
+    def parse(cls, path) -> list[QuoteModel]:
         """Parse a file and return a list of QuoteModel objects."""
         raise NotImplementedError

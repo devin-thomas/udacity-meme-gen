@@ -9,12 +9,12 @@ from .quote_model import QuoteModel
 
 
 class CSVIngestor(IngestorInterface):
-    """Load quotes from CSV files with body and author columns."""
+    """Parse .csv quote files with pandas."""
 
     allowed_extensions = ["csv"]
 
     @classmethod
-    def parse(cls, path):
+    def parse(cls, path) -> list[QuoteModel]:
         """Parse a CSV file into QuoteModel objects."""
         if not cls.can_ingest(path):
             raise UnsupportedFileTypeError(f"CSVIngestor cannot parse {path}.")
