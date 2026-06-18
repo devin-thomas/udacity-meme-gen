@@ -1,3 +1,5 @@
+"""Command-line interface for generating random or custom memes."""
+
 import random
 from argparse import ArgumentParser
 
@@ -8,17 +10,18 @@ from meme_resources import BASE_DIR, load_images, load_quotes
 
 def generate_meme(path=None, body=None, author=None):
     """Generate a meme from optional image and quote inputs."""
+    if (body is None) != (author is None):
+        raise ValueError("Body and author must be provided together.")
+
     if path is None:
         img = random.choice(load_images())
     else:
         img = path
 
-    if body is None:
+    if body is None and author is None:
         quotes = load_quotes()
         quote = random.choice(quotes)
     else:
-        if author is None:
-            raise ValueError("Author is required when body is provided.")
         quote = QuoteModel(body, author)
 
     meme = MemeEngine(BASE_DIR / "tmp")
@@ -36,10 +39,15 @@ def build_parser():
     return parser
 
 
-def main():
+def main(argv=None):
     """Parse command-line arguments and print the generated meme path."""
-    args = build_parser().parse_args()
-    print(generate_meme(args.path, args.body, args.author))
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        output_path = generate_meme(args.path, args.body, args.author)
+    except ValueError as exc:
+        parser.error(str(exc))
+    print(output_path)
 
 
 if __name__ == "__main__":

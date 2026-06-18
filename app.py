@@ -1,3 +1,5 @@
+"""Flask routes for the browser-based meme generator."""
+
 import random
 import tempfile
 from pathlib import Path
