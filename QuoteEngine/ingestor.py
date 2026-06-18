@@ -31,12 +31,17 @@ class Ingestor(IngestorInterface):
         """Discover and parse every supported quote file in a directory."""
         root_path = Path(directory)
         if not root_path.exists():
-            raise FileNotFoundError(f"Quote directory does not exist: {directory}")
+            raise FileNotFoundError(
+                f"Quote directory does not exist: {directory}"
+            )
 
         quotes = []
         for root, _, files in os.walk(root_path):
             for name in sorted(files):
                 path = Path(root) / name
-                if any(ingestor.can_ingest(path) for ingestor in cls.ingestors):
+                if any(
+                    ingestor.can_ingest(path)
+                    for ingestor in cls.ingestors
+                ):
                     quotes.extend(cls.parse(path))
         return quotes

@@ -13,7 +13,9 @@ class TextIngestor(IngestorInterface):
     def parse(cls, path):
         """Parse a text file into QuoteModel objects."""
         if not cls.can_ingest(path):
-            raise UnsupportedFileTypeError(f"TextIngestor cannot parse {path}.")
+            raise UnsupportedFileTypeError(
+                f"TextIngestor cannot parse {path}."
+            )
 
         with open(path, "r", encoding="utf-8-sig") as infile:
             return cls._quotes_from_lines(infile.readlines())

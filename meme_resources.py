@@ -28,7 +28,9 @@ def load_quotes(quote_directories=None):
                     seen.add(identity)
 
     if not quotes:
-        raise RuntimeError("No quotes were found in the configured data folders.")
+        raise RuntimeError(
+            "No quotes were found in the configured data folders."
+        )
     return quotes
 
 

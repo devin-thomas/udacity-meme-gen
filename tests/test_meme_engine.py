@@ -53,8 +53,16 @@ def test_caption_prefers_quiet_region_over_busy_center():
     image = Image.new("RGB", (500, 500), color=(230, 235, 238))
     draw = ImageDraw.Draw(image)
     for coordinate in range(100, 401, 10):
-        draw.line((100, coordinate, 400, coordinate), fill=(20, 30, 40), width=5)
-        draw.line((coordinate, 100, coordinate, 400), fill=(170, 30, 40), width=5)
+        draw.line(
+            (100, coordinate, 400, coordinate),
+            fill=(20, 30, 40),
+            width=5,
+        )
+        draw.line(
+            (coordinate, 100, coordinate, 400),
+            fill=(170, 30, 40),
+            width=5,
+        )
 
     layout = MemeEngine._build_caption_layout(
         image,

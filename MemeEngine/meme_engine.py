@@ -61,7 +61,8 @@ class MemeEngine:
             )
         if len(author_name) > self.max_author_length:
             raise ValueError(
-                f"Meme author cannot exceed {self.max_author_length} characters."
+                "Meme author cannot exceed "
+                f"{self.max_author_length} characters."
             )
         if width <= 0:
             raise ValueError("Meme width must be greater than zero.")
@@ -229,7 +230,10 @@ class MemeEngine:
         current_piece = ""
         for character in word:
             candidate = current_piece + character
-            if current_piece and draw.textlength(candidate, font=font) > max_width:
+            if (
+                current_piece
+                and draw.textlength(candidate, font=font) > max_width
+            ):
                 pieces.append(current_piece)
                 current_piece = character
             else:

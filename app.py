@@ -47,7 +47,10 @@ def meme_post():
     body = request.form.get("body", "").strip()
     author = request.form.get("author", "").strip()
     if not image_url or not body or not author:
-        abort(400, description="Image URL, quote body, and author are required.")
+        abort(
+            400,
+            description="Image URL, quote body, and author are required.",
+        )
 
     temp_path = None
     try:

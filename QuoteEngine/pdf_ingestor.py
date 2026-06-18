@@ -6,7 +6,11 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from .exceptions import MissingDependencyError, QuoteEngineError, UnsupportedFileTypeError
+from .exceptions import (
+    MissingDependencyError,
+    QuoteEngineError,
+    UnsupportedFileTypeError,
+)
 from .ingestor_interface import IngestorInterface
 from .text_ingestor import TextIngestor
 
@@ -22,7 +26,10 @@ class PDFIngestor(IngestorInterface):
         if not cls.can_ingest(path):
             raise UnsupportedFileTypeError(f"PDFIngestor cannot parse {path}.")
 
-        pdftotext = os.environ.get("PDFTOTEXT_PATH") or shutil.which("pdftotext")
+        pdftotext = (
+            os.environ.get("PDFTOTEXT_PATH")
+            or shutil.which("pdftotext")
+        )
         if pdftotext:
             return cls._parse_with_pdftotext(path, pdftotext)
         return cls._parse_with_pypdf(path)

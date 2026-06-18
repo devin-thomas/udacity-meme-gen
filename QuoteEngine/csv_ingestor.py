@@ -1,6 +1,9 @@
 """CSV quote ingestor backed by pandas."""
 
-from .exceptions import MissingDependencyError, UnsupportedFileTypeError
+from .exceptions import (
+    MissingDependencyError,
+    UnsupportedFileTypeError,
+)
 from .ingestor_interface import IngestorInterface
 from .quote_model import QuoteModel
 
@@ -24,8 +27,14 @@ class CSVIngestor(IngestorInterface):
             ) from exc
 
         data = pd.read_csv(path)
-        normalized_columns = {name.lower().strip(): name for name in data.columns}
-        if "body" not in normalized_columns or "author" not in normalized_columns:
+        normalized_columns = {
+            name.lower().strip(): name
+            for name in data.columns
+        }
+        if (
+            "body" not in normalized_columns
+            or "author" not in normalized_columns
+        ):
             raise ValueError(
                 f"{path} must include 'body' and 'author' columns."
             )

@@ -1,6 +1,9 @@
 """DOCX quote ingestor backed by python-docx."""
 
-from .exceptions import MissingDependencyError, UnsupportedFileTypeError
+from .exceptions import (
+    MissingDependencyError,
+    UnsupportedFileTypeError,
+)
 from .ingestor_interface import IngestorInterface
 
 
@@ -13,7 +16,9 @@ class DocxIngestor(IngestorInterface):
     def parse(cls, path):
         """Parse a DOCX file into QuoteModel objects."""
         if not cls.can_ingest(path):
-            raise UnsupportedFileTypeError(f"DocxIngestor cannot parse {path}.")
+            raise UnsupportedFileTypeError(
+                f"DocxIngestor cannot parse {path}."
+            )
 
         try:
             from docx import Document

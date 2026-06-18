@@ -16,10 +16,11 @@ from QuoteEngine import (
 BASE_DIR = Path(__file__).resolve().parents[1]
 
 
-def test_quote_model_string_representation():
+def test_quote_model_representation():
     """QuoteModel prints in the Udacity-required format."""
     quote = QuoteModel("Readable code matters", "Devin")
 
+    assert repr(quote) == '"Readable code matters" - Devin'
     assert str(quote) == '"Readable code matters" - Devin'
 
 

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from .exceptions import InvalidQuoteFormatError
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class QuoteModel:
     """Represent a quote body and its author."""
 
@@ -25,6 +25,10 @@ class QuoteModel:
         object.__setattr__(self, "body", body)
         object.__setattr__(self, "author", author)
 
-    def __str__(self):
+    def __repr__(self):
         """Return the required printable quote representation."""
+        return f'"{self.body}" - {self.author}'
+
+    def __str__(self):
+        """Match the repr output for human-friendly printing."""
         return f'"{self.body}" - {self.author}'
