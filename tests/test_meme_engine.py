@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from MemeEngine import MemeEngine
 
@@ -84,3 +84,20 @@ def test_make_meme_rejects_excessively_long_text(tmp_path):
 
     with pytest.raises(ValueError, match="cannot exceed 280 characters"):
         engine.make_meme(source, "x" * 281, "Devin")
+
+
+def test_load_font_prefers_configured_deployment_path(tmp_path, monkeypatch):
+    """MEME_FONT_PATH takes precedence over platform font defaults."""
+    configured_font = tmp_path / "deployment-font.ttf"
+    configured_font.write_bytes(b"font placeholder")
+    selected_font = object()
+
+    def fake_truetype(font_path, font_size):
+        assert Path(font_path) == configured_font
+        assert font_size == 24
+        return selected_font
+
+    monkeypatch.setenv("MEME_FONT_PATH", str(configured_font))
+    monkeypatch.setattr(ImageFont, "truetype", fake_truetype)
+
+    assert MemeEngine._load_font(24) is selected_font

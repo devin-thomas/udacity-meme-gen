@@ -1,5 +1,6 @@
 """Meme image generation using Pillow."""
 
+import os
 import random
 import uuid
 from dataclasses import dataclass
@@ -178,14 +179,16 @@ class MemeEngine:
     @staticmethod
     def _load_font(font_size):
         """Load a TrueType font when available, falling back gracefully."""
+        configured_font = os.environ.get("MEME_FONT_PATH")
         candidates = [
+            configured_font,
             "C:/Windows/Fonts/arialbd.ttf",
             "C:/Windows/Fonts/arial.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
             "/Library/Fonts/Arial.ttf",
         ]
         for font_path in candidates:
-            if Path(font_path).exists():
+            if font_path and Path(font_path).is_file():
                 return ImageFont.truetype(font_path, font_size)
         return ImageFont.load_default(size=font_size)
 

@@ -91,7 +91,16 @@ gunicorn app:app
 ```
 
 Generated web images are written to `static/generated/`, which is intentionally
-ignored by git.
+ignored by git. Remote images are streamed with an 8 MB limit so unusually
+large downloads cannot consume unbounded memory or disk space.
+
+Set `MEME_FONT_PATH` when a deployment should use a specific TrueType font;
+otherwise the engine searches common Windows, Linux, and macOS font locations
+before using Pillow's default font:
+
+```powershell
+$env:MEME_FONT_PATH = "C:\Windows\Fonts\arialbd.ttf"
+```
 
 ## Module Guide
 

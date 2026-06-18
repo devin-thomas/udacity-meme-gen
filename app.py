@@ -13,6 +13,7 @@ from MemeEngine import MemeEngine
 from meme_resources import BASE_DIR, load_images, load_quotes
 
 app = Flask(__name__)
+app.config.setdefault("MAX_REMOTE_IMAGE_BYTES", 8 * 1024 * 1024)
 
 STATIC_DIR = BASE_DIR / "static"
 TEMP_DIR = BASE_DIR / "tmp"
@@ -85,20 +86,40 @@ def _download_image(image_url):
         suffix = ".jpg"
 
     response = requests.get(image_url, stream=True, timeout=10)
-    response.raise_for_status()
-    content_type = response.headers.get("content-type", "").lower()
-    if content_type and not content_type.startswith("image/"):
-        abort(400, description="The submitted URL did not return an image.")
+    temp_path = None
+    try:
+        response.raise_for_status()
+        content_type = response.headers.get("content-type", "").lower()
+        if content_type and not content_type.startswith("image/"):
+            abort(400, description="The submitted URL did not return an image.")
 
-    with tempfile.NamedTemporaryFile(
-        delete=False,
-        suffix=suffix,
-        dir=TEMP_DIR,
-    ) as outfile:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
+        max_bytes = app.config["MAX_REMOTE_IMAGE_BYTES"]
+        content_length = response.headers.get("content-length")
+        if content_length and content_length.isdigit():
+            if int(content_length) > max_bytes:
+                abort(413, description="The submitted image is too large.")
+
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=suffix,
+            dir=TEMP_DIR,
+        ) as outfile:
+            temp_path = outfile.name
+            downloaded_bytes = 0
+            for chunk in response.iter_content(chunk_size=8192):
+                if not chunk:
+                    continue
+                downloaded_bytes += len(chunk)
+                if downloaded_bytes > max_bytes:
+                    abort(413, description="The submitted image is too large.")
                 outfile.write(chunk)
-        return outfile.name
+        return temp_path
+    except Exception:
+        if temp_path:
+            Path(temp_path).unlink(missing_ok=True)
+        raise
+    finally:
+        response.close()
 
 
 def _static_url(path):
